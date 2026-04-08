@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 import { themeSettings } from "./theme";
+import Notification from "components/Notification";
 
 function App() {
   const mode = useSelector((state) => state.mode);
@@ -18,6 +19,7 @@ function App() {
       <BrowserRouter>
         <ThemeProvider theme={theme}>
           <CssBaseline />
+          <Notification />
           <Routes>
             {/* <Route path="/" element={<LoginPage />} /> */}
             <Route

@@ -12,20 +12,20 @@ export const colorTokens = {
     600: "#4D4D4D",
     700: "#333333",
     800: "#1A1A1A",
-    900: "#0A0A0A",
+    900: "#0F0F0F", // Slightly softer black
     1000: "#000000",
   },
   primary: {
-    50: "#E6FBFF",
-    100: "#CCF7FE",
-    200: "#99EEFD",
-    300: "#66E6FC",
-    400: "#33DDFB",
-    500: "#00D5FA",
-    600: "#00A0BC",
-    700: "#006B7D",
-    800: "#00353F",
-    900: "#001519",
+    50: "#F0F5FF",
+    100: "#E1EBFF",
+    200: "#C3D7FF",
+    300: "#96B7FF",
+    400: "#648DFF",
+    500: "#3B82F6", // Modern Blue (Tailwind-like)
+    600: "#2563EB",
+    700: "#1D4ED8",
+    800: "#1E40AF",
+    900: "#1E3A8A",
   },
 };
 
@@ -38,7 +38,7 @@ export const themeSettings = (mode) => {
         ? {
             // palette values for dark mode
             primary: {
-              dark: colorTokens.primary[200],
+              dark: colorTokens.primary[300],
               main: colorTokens.primary[500],
               light: colorTokens.primary[800],
             },
@@ -75,32 +75,41 @@ export const themeSettings = (mode) => {
           }),
     },
     typography: {
-      fontFamily: ["Rubik", "sans-serif"].join(","),
+      fontFamily: ["Inter", "sans-serif"].join(","),
       fontSize: 12,
       h1: {
-        fontFamily: ["Rubik", "sans-serif"].join(","),
+        fontFamily: ["Inter", "sans-serif"].join(","),
         fontSize: 40,
+        fontWeight: 700,
       },
       h2: {
-        fontFamily: ["Rubik", "sans-serif"].join(","),
+        fontFamily: ["Inter", "sans-serif"].join(","),
         fontSize: 32,
+        fontWeight: 700,
       },
       h3: {
-        fontFamily: ["Rubik", "sans-serif"].join(","),
+        fontFamily: ["Inter", "sans-serif"].join(","),
         fontSize: 24,
+        fontWeight: 600,
       },
       h4: {
-        fontFamily: ["Rubik", "sans-serif"].join(","),
+        fontFamily: ["Inter", "sans-serif"].join(","),
         fontSize: 20,
+        fontWeight: 600,
       },
       h5: {
-        fontFamily: ["Rubik", "sans-serif"].join(","),
+        fontFamily: ["Inter", "sans-serif"].join(","),
         fontSize: 16,
+        fontWeight: 500,
       },
       h6: {
-        fontFamily: ["Rubik", "sans-serif"].join(","),
+        fontFamily: ["Inter", "sans-serif"].join(","),
         fontSize: 14,
+        fontWeight: 500,
       },
+    },
+    shape: {
+      borderRadius: 12, // More modern rounded corners
     },
   };
 };

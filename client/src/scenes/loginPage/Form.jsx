@@ -12,7 +12,7 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setLogin } from "state";
+import { setLogin, setNotification } from "state";
 import Dropzone from "react-dropzone";
 import FlexBetween from "components/FlexBetween";
 import { API_BASE_URL } from "config";
@@ -95,10 +95,32 @@ const Form = () => {
       onSubmitProps.resetForm();
 
       if (savedUser) {
+        dispatch(
+          setNotification({
+            message: "Registration successful! please login.",
+            type: "success",
+            open: true,
+          })
+        );
         setPageType("login");
+      } else {
+        dispatch(
+          setNotification({
+            message: "Registration failed. please try again.",
+            type: "error",
+            open: true,
+          })
+        );
       }
     } catch (error) {
       console.error("Error uploading image to ImgBB:", error);
+      dispatch(
+        setNotification({
+          message: "An error occurred during registration.",
+          type: "error",
+          open: true,
+        })
+      );
     }
   };
 
@@ -109,9 +131,27 @@ const Form = () => {
       body: JSON.stringify(values),
     });
     const loggedIn = await loggedInResponse.json();
-    console.log("LOGGEED: ",loggedIn)
     onSubmitProps.resetForm();
+
+    if (loggedInResponse.status !== 200) {
+      dispatch(
+        setNotification({
+          message: loggedIn.msg || "Login failed.",
+          type: "error",
+          open: true,
+        })
+      );
+      return;
+    }
+
     if (loggedIn) {
+      dispatch(
+        setNotification({
+          message: `Welcome back, ${loggedIn.user.firstName}!`,
+          type: "success",
+          open: true,
+        })
+      );
       dispatch(
         setLogin({
           user: loggedIn.user,
@@ -267,7 +307,15 @@ const Form = () => {
                 p: "1rem",
                 backgroundColor: palette.primary.main,
                 color: palette.background.alt,
-                "&:hover": { color: palette.primary.main },
+                borderRadius: "10px",
+                fontWeight: "700",
+                fontSize: "1rem",
+                "&:hover": {
+                  backgroundColor: palette.primary.dark,
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 5px 15px rgba(26, 115, 232, 0.3)",
+                },
+                transition: "all 0.3s ease",
               }}
             >
               {isLogin ? "LOGIN" : "REGISTER"}
@@ -278,17 +326,19 @@ const Form = () => {
                 resetForm();
               }}
               sx={{
-                textDecoration: "underline",
+                textAlign: "center",
                 color: palette.primary.main,
+                fontWeight: "600",
                 "&:hover": {
                   cursor: "pointer",
                   color: palette.primary.light,
+                  textDecoration: "underline",
                 },
               }}
             >
               {isLogin
-                ? "Don't have an account? Sign Up here."
-                : "Already have an account? Login here."}
+                ? "Don't have an account? Create one now →"
+                : "Already part of the community? Sign In →"}
             </Typography>
           </Box>
         </form>

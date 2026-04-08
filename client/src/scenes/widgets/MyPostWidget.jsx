@@ -1,11 +1,11 @@
 import {
   EditOutlined,
   DeleteOutlined,
-  AttachFileOutlined,
   GifBoxOutlined,
   ImageOutlined,
   MicOutlined,
   MoreHorizOutlined,
+  LayersOutlined,
 } from "@mui/icons-material";
 import {
   Box,
@@ -16,6 +16,8 @@ import {
   Button,
   IconButton,
   useMediaQuery,
+  Tooltip,
+  CircularProgress,
 } from "@mui/material";
 import FlexBetween from "components/FlexBetween";
 import Dropzone from "react-dropzone";
@@ -23,7 +25,7 @@ import UserImage from "components/UserImage";
 import WidgetWrapper from "components/WidgetWrapper";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setPosts } from "state";
+import { setPosts, setNotification } from "state";
 import { API_BASE_URL } from "config";
 
 const MyPostWidget = ({ picturePath }) => {
@@ -31,6 +33,7 @@ const MyPostWidget = ({ picturePath }) => {
   const [isImage, setIsImage] = useState(false);
   const [image, setImage] = useState(null);
   const [post, setPost] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { palette } = useTheme();
   const { _id } = useSelector((state) => state.user);
   const token = useSelector((state) => state.token);
@@ -40,45 +43,79 @@ const MyPostWidget = ({ picturePath }) => {
 
   const handlePost = async () => {
     try {
+      if (!post.trim() && !image) {
+        dispatch(
+          setNotification({
+            message: "Please add some content or an image to post.",
+            type: "warning",
+          })
+        );
+        return;
+      }
+
+      setIsLoading(true);
+
       const formData = new FormData();
       formData.append("userId", _id);
       formData.append("description", post);
-      if (image) {
-        // formData.append("picture", image);
-        // formData.append("picturePath", image.name);
-        formData.append("image", image);
-      }
-      const imgbbKey = process.env.REACT_APP_IMGBB_API_KEY;
-      const imgbbResponse = await fetch(
-        `https://api.imgbb.com/1/upload?key=${imgbbKey}`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
 
-      const imgbbData = await imgbbResponse.json();
-      const imageUrl = imgbbData.data.url;
-      // update the formData with new picturePath
-      const newFormData = {
-        ...Object.fromEntries(formData),
-        picturePath: imageUrl,
-      };
-      // Now, use `imageUrl` in your API call to save the user data with the image URL.
+      let finalPicturePath = "";
+
+      if (image) {
+        formData.append("image", image);
+        const imgbbKey = process.env.REACT_APP_IMGBB_API_KEY;
+        const imgbbResponse = await fetch(
+          `https://api.imgbb.com/1/upload?key=${imgbbKey}`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+        const imgbbData = await imgbbResponse.json();
+        if (imgbbData.success) {
+          finalPicturePath = imgbbData.data.url;
+        } else {
+          throw new Error("Image upload failed");
+        }
+      }
+
       const response = await fetch(`${API_BASE_URL}/posts`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(newFormData),
+        body: JSON.stringify({
+          userId: _id,
+          description: post,
+          picturePath: finalPicturePath,
+        }),
       });
+
       const posts = await response.json();
-      dispatch(setPosts({ posts }));
-      setImage(null);
-      setPost("");
+      if (response.ok) {
+        dispatch(setPosts({ posts }));
+        dispatch(
+          setNotification({
+            message: "Post created successfully! 🚀",
+            type: "success",
+          })
+        );
+        setImage(null);
+        setPost("");
+        setIsImage(false);
+      } else {
+        throw new Error(posts.message || "Failed to create post");
+      }
     } catch (err) {
-      console.error("Error posting:", err);
+      dispatch(
+        setNotification({
+          message: err.message || "Something went wrong. Please try again.",
+          type: "error",
+        })
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -87,23 +124,32 @@ const MyPostWidget = ({ picturePath }) => {
       <FlexBetween gap="1.5rem">
         <UserImage image={picturePath} />
         <InputBase
-          placeholder="What's on your mind..."
+          placeholder="What's on your mind? Share your thoughts..."
           onChange={(e) => setPost(e.target.value)}
           value={post}
           sx={{
             width: "100%",
             backgroundColor: palette.neutral.light,
-            borderRadius: "2rem",
-            padding: "1rem 2rem",
+            borderRadius: "1.5rem",
+            padding: "0.75rem 1.5rem",
+            fontSize: "1rem",
+            fontWeight: "500",
+            transition: "all 0.2s ease",
+            "&:hover": {
+              backgroundColor: palette.neutral.light,
+              boxShadow: "0 0 0 2px " + palette.primary.light,
+            },
           }}
         />
       </FlexBetween>
+
       {isImage && (
         <Box
           border={`1px solid ${medium}`}
-          borderRadius="5px"
-          mt="1rem"
+          borderRadius="12px"
+          mt="1.5rem"
           p="1rem"
+          sx={{ backgroundColor: palette.background.default }}
         >
           <Dropzone
             acceptedFiles=".jpg,.jpeg,.png"
@@ -115,16 +161,24 @@ const MyPostWidget = ({ picturePath }) => {
                 <Box
                   {...getRootProps()}
                   border={`2px dashed ${palette.primary.main}`}
-                  p="1rem"
+                  p="2rem"
                   width="100%"
-                  sx={{ "&:hover": { cursor: "pointer" } }}
+                  sx={{
+                    "&:hover": { cursor: "pointer", opacity: 0.8 },
+                    borderRadius: "8px",
+                    textAlign: "center",
+                  }}
                 >
                   <input {...getInputProps()} />
                   {!image ? (
-                    <p>Add Image Here</p>
+                    <Typography color={mediumMain} fontWeight="500">
+                      Drag & drop or <span style={{ color: palette.primary.main, textDecoration: "underline" }}>browse</span> to add an image
+                    </Typography>
                   ) : (
                     <FlexBetween>
-                      <Typography>{image.name}</Typography>
+                      <Typography fontWeight="600" color={palette.primary.main}>
+                        {image.name}
+                      </Typography>
                       <EditOutlined />
                     </FlexBetween>
                   )}
@@ -132,9 +186,9 @@ const MyPostWidget = ({ picturePath }) => {
                 {image && (
                   <IconButton
                     onClick={() => setImage(null)}
-                    sx={{ width: "15%" }}
+                    sx={{ ml: "0.5rem" }}
                   >
-                    <DeleteOutlined />
+                    <DeleteOutlined color="error" />
                   </IconButton>
                 )}
               </FlexBetween>
@@ -143,35 +197,50 @@ const MyPostWidget = ({ picturePath }) => {
         </Box>
       )}
 
-      <Divider sx={{ margin: "1.25rem 0" }} />
+      <Divider sx={{ margin: "1.5rem 0" }} />
 
       <FlexBetween>
         <FlexBetween gap="0.25rem" onClick={() => setIsImage(!isImage)}>
-          <ImageOutlined sx={{ color: mediumMain }} />
+          <IconButton>
+            <ImageOutlined sx={{ color: mediumMain }} />
+          </IconButton>
           <Typography
             color={mediumMain}
+            fontWeight="600"
             sx={{ "&:hover": { cursor: "pointer", color: medium } }}
           >
-            Image
+            Photo
           </Typography>
         </FlexBetween>
 
         {isNonMobileScreens ? (
           <>
-            <FlexBetween gap="0.25rem">
-              <GifBoxOutlined sx={{ color: mediumMain }} />
-              <Typography color={mediumMain}>Clip</Typography>
-            </FlexBetween>
+            <Tooltip title="Coming Soon">
+              <FlexBetween gap="0.25rem" sx={{ opacity: 0.6 }}>
+                <IconButton disabled>
+                  <GifBoxOutlined sx={{ color: mediumMain }} />
+                </IconButton>
+                <Typography color={mediumMain} fontWeight="600">Clip</Typography>
+              </FlexBetween>
+            </Tooltip>
 
-            <FlexBetween gap="0.25rem">
-              <AttachFileOutlined sx={{ color: mediumMain }} />
-              <Typography color={mediumMain}>Attachment</Typography>
-            </FlexBetween>
+            <Tooltip title="Coming Soon">
+              <FlexBetween gap="0.25rem" sx={{ opacity: 0.6 }}>
+                <IconButton disabled>
+                  <LayersOutlined sx={{ color: mediumMain }} />
+                </IconButton>
+                <Typography color={mediumMain} fontWeight="600">Event</Typography>
+              </FlexBetween>
+            </Tooltip>
 
-            <FlexBetween gap="0.25rem">
-              <MicOutlined sx={{ color: mediumMain }} />
-              <Typography color={mediumMain}>Audio</Typography>
-            </FlexBetween>
+            <Tooltip title="Coming Soon">
+              <FlexBetween gap="0.25rem" sx={{ opacity: 0.6 }}>
+                <IconButton disabled>
+                  <MicOutlined sx={{ color: mediumMain }} />
+                </IconButton>
+                <Typography color={mediumMain} fontWeight="600">Audio</Typography>
+              </FlexBetween>
+            </Tooltip>
           </>
         ) : (
           <FlexBetween gap="0.25rem">
@@ -180,15 +249,28 @@ const MyPostWidget = ({ picturePath }) => {
         )}
 
         <Button
-          disabled={!post}
+          disabled={(!post.trim() && !image) || isLoading}
           onClick={handlePost}
           sx={{
-            color: palette.background.alt,
+            color: "#fff",
             backgroundColor: palette.primary.main,
-            borderRadius: "3rem",
+            borderRadius: "2rem",
+            padding: "0.5rem 2rem",
+            fontWeight: "700",
+            letterSpacing: "0.5px",
+            boxShadow: "0 4px 14px 0 " + palette.primary.main + "40",
+            "&:hover": {
+              backgroundColor: palette.primary.dark,
+              transform: "translateY(-1px)",
+              boxShadow: "0 6px 20px 0 " + palette.primary.main + "60",
+            },
+            "&:disabled": {
+              backgroundColor: palette.neutral.light,
+              color: palette.neutral.medium,
+            },
           }}
         >
-          POST
+          {isLoading ? <CircularProgress size={20} color="inherit" /> : "POST"}
         </Button>
       </FlexBetween>
     </WidgetWrapper>

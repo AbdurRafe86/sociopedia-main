@@ -39,8 +39,8 @@ export const addRemoveFriend = async (req, res) => {
     const friend = await User.findById(friendId);
 
     if (user.friends.includes(friendId)) {
-      user.friends = user.friends.filter((id) => id !== friendId);
-      friend.friends = friend.friends.filter((id) => id !== id);
+      user.friends = user.friends.filter((fid) => fid !== friendId);
+      friend.friends = friend.friends.filter((fid) => fid !== id);
     } else {
       user.friends.push(friendId);
       friend.friends.push(id);
@@ -61,5 +61,30 @@ export const addRemoveFriend = async (req, res) => {
     res.status(200).json(formattedFriends);
   } catch (err) {
     res.status(404).json({ message: err.message });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { location, occupation, twitterUrl, linkedinUrl } = req.body;
+    
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { location, occupation, twitterUrl, linkedinUrl },
+      { new: true } // Return the updated document
+    );
+    
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    // Do not send password back
+    const userToReturn = updatedUser.toObject();
+    delete userToReturn.password;
+    
+    res.status(200).json(userToReturn);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
