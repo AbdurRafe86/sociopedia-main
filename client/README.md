@@ -1,98 +1,169 @@
-🌐 Sociopedia — Client (React Frontend)
+# 🌐 Sociopedia — Client (React Frontend)
 
-This is the frontend of Sociopedia, built with React, Redux Toolkit, and Material UI.
-It communicates with the backend server to:
+This is the **frontend** of **Sociopedia**, built using modern React tools like **Redux Toolkit** and **Material UI**. It communicates with the backend server to provide a full social media experience.
 
-Register/login users
-Display posts
-Upload images
-Add/remove friends
-Like/unlike posts
-View user profiles
-🎨 UI Tech Stack
-Frontend
-React.js
-React Router
-Redux Toolkit
-Redux Persist
-Material UI
-Formik + Yup (forms & validation)
-📁 Folder Structure
+---
+
+## 🚀 Features
+
+* 🔐 Register & Login users (JWT आधारित authentication)
+* 📝 Create, view, like, and unlike posts
+* 🖼️ Upload images
+* 👥 Add / Remove friends
+* 👤 View user profiles
+* 💾 Persistent login sessions
+
+---
+
+## 🎨 Tech Stack
+
+### Frontend
+
+* React.js
+* React Router
+* Redux Toolkit
+* Redux Persist
+* Material UI (MUI)
+* Formik + Yup (Forms & Validation)
+
+---
+
+## 📁 Folder Structure
+
+```
 client/
 │── public/
 │── src/
 │   ├── components/     # Reusable UI components
-│   ├── pages/          # Login, Home, Profile
-│   ├── state/          # Redux store, slices
-│   ├── theme.js        # MUI theming
+│   ├── pages/          # Login, Home, Profile pages
+│   ├── state/          # Redux store and slices
+│   ├── theme.js        # MUI theme configuration
 │   ├── App.js
 │   └── index.js
 │── package.json
-🔧 Installation & Setup
-1️⃣ Install Dependencies
+```
 
-Inside the client folder:
+---
 
+## ⚙️ Installation & Setup
+
+### 1️⃣ Install Dependencies
+
+Navigate to the client folder and run:
+
+```bash
 npm install
-▶️ 2️⃣ Run the App
+```
+
+---
+
+### ▶️ 2️⃣ Run the App
+
+```bash
 npm start
+```
 
-The app will open at:
+The app will run on:
 
+```
 http://localhost:3000
+```
 
-Make sure your backend is running at:
+---
 
+### ⚠️ Backend Requirement
+
+Ensure your backend server is running at:
+
+```
 http://localhost:6001
-🔗 API Integration
+```
 
-API requests are made using:
+---
 
-fetch()
-Base URL typically defined in a config file
-All secure requests include JWT token
-📌 Pages
-🏠 Home Page
-Displays global feed
-Shows posts from all users
-Create new post
-Like/unlike posts
-👤 Profile Page
-User’s personal info
-Their posts
-Friend list
-🔐 Login / Register
-Form validation (Formik + Yup)
-JWT-based login
-Persistent user sessions
-📦 Redux State Structure
+## 🔗 API Integration
+
+* Uses `fetch()` for API calls
+* Base URL typically stored in a config file
+* Secure routes require JWT token
+* Token is stored via Redux Persist
+
+---
+
+## 📌 Pages
+
+### 🏠 Home Page
+
+* Displays global feed
+* Shows posts from all users
+* Create new posts
+* Like / Unlike posts
+
+---
+
+### 👤 Profile Page
+
+* User personal details
+* User posts
+* Friend list
+
+---
+
+### 🔐 Login / Register
+
+* Form validation using Formik + Yup
+* JWT-based authentication
+* Persistent login sessions
+
+---
+
+## 📦 Redux State Structure
+
+```
 state/
-│── authSlice.js     # Handles user + token
-│── postsSlice.js    # Stores all posts
+│── authSlice.js     # Manages user & token
+│── postsSlice.js    # Stores posts
 │── store.js         # Configures Redux store
+```
 
-Uses Redux Persist to store user session in local storage.
+* Uses **Redux Persist** to store user session in local storage
 
-🎨 Material UI Theme
+---
 
-Dark/Light mode supported:
+## 🎨 Material UI Theme
 
-primary colors
-background colors
-typography settings
+Supports **Dark / Light mode**:
 
-Theme switch handled via Redux.
+* Custom primary colors
+* Background themes
+* Typography settings
 
-🖼️ Image Uploads
+Theme switching is managed via Redux.
 
-Frontend uploads images using:
+---
 
-FormData()
+## 🖼️ Image Uploads
 
-Then sends it to backend via:
+* Uses `FormData()` to upload images
+* Sends request to backend:
 
+```
 POST /posts
-📝 Notes
-Requires Node v18
-Make sure backend .env and MongoDB connection are correct
-Works together with the backend
+```
+
+---
+
+## 📝 Notes
+
+* Requires **Node.js v18+**
+* Ensure backend `.env` is properly configured
+* MongoDB connection must be active
+* This frontend works together with the Sociopedia backend
+
+---
+
+## 📌 Summary
+
+Sociopedia Client is a modern, responsive React frontend that delivers a full-featured social media UI with authentication, real-time interactions, and persistent state management.
+
+---
