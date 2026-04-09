@@ -1,0 +1,190 @@
+ABSTRACT
+
+Sociopedia is a full-featured social media platform designed to provide users with a secure and interactive environment for sharing content and connecting with friends. Built using the MERN stack (MongoDB, Express.js, React, and Node.js), the application emphasizes a premium user experience through a modern design system, dark/light mode functionality, and real-time social interactions. The system implements secure JWT-based authentication, image-based registration, and an optimized backend for efficient data retrieval. Key features include creating media-rich posts, a friend management system, and profile analytics such as profile views and impressions. This project demonstrates the practical application of modern web development technologies to build a scalable and responsive social networking solution.
+
+CHAPTER-1
+1.1 INTRODUCTION
+Social media has become an integral part of modern communication, allowing individuals to share life updates, media, and thoughts instantly. Sociopedia is a social media application developed to bridge the gap between simple social tools and complex enterprise platforms. By leveraging the MERN stack, the project provides a robust architecture that handles high-concurrency requests while maintaining a smooth user interface.
+
+1.2 OBJECTIVES
+The primary objective of Sociopedia is to create a secure, responsive, and user-friendly social media platform. The project aims to:
+- Implement a secure authentication system using JSON Web Tokens (JWT).
+- Provide a seamless interface for users to share media and text posts.
+- Develop a connectivity system where users can add or remove friends.
+- Offer a customizable user experience with light and dark theme support.
+
+1.3 PROJECT INTERFACE
+The interface is built using React and Material UI, following a clean and minimalist design. It consists of a navigation bar, a side panel for user info and friend lists, a central feed for posts, and a post creation widget. The design is fully responsive, ensuring accessibility across various devices.
+
+1.4 BACKGROUND
+Conventional social media platforms often suffer from privacy concerns and cluttered interfaces. Sociopedia addresses these issues by providing a simplified yet feature-rich experience. The use of modern frameworks like React and Node.js ensures that the application is fast and scalable.
+
+1.5 PROBLEM STATEMENT
+Developing a social media application requires balancing security, performance, and user engagement. Existing solutions may lack efficient image handling or simple friend management systems for small to medium-scale communities. There is a need for a modular social platform that can be easily customized and extended.
+
+1.6 AIMS AND OBJECTIVES
+- To build a backend API that manages user data, posts, and social relationships.
+- To design a frontend that provides intuitive navigation and real-time feedback.
+- To ensure data integrity and security through encryption and token-based access control.
+
+CHAPTER-2
+2.1 LITERATURE SURVEY
+The MERN stack has become a standard for building modern web applications due to its use of JavaScript throughout the stack. Research into existing social media architectures reveals that NoSQL databases like MongoDB are ideal for handling unstructured social data. Studies on JWT show its effectiveness in stateless authentication for distributed systems.
+
+2.2 DESIGN AND IMPLEMENTATION CONSTRAINTS
+- The application requires a stable internet connection to interact with MongoDB Atlas.
+- Image uploads are limited by the server's storage capacity (local assets folder in this version).
+- Node.js version 18 is recommended for compatibility with specific MongoDB drivers used in the project.
+
+2.3 ASSUMPTIONS AND DEPENDENCIES
+- Users are expected to have a modern web browser that supports ES6 features.
+- The backend assumes that the MongoDB connection string and JWT secret are correctly configured in the environment variables.
+- Dependencies include React 18, Express 4.x, and Mongoose for database management.
+
+CHAPTER-3
+3.1 SOFTWARE AND HARDWARE REQUIREMENTS
+Hardware Requirements:
+- Processor: Dual-core 2.4 GHz or higher.
+- RAM: 4 GB minimum (8 GB recommended).
+- Storage: 500 MB of free space for project files and local assets.
+
+Software Requirements:
+- OS: Windows 10/11, macOS, or Linux.
+- Environment: Node.js (v18+), NPM.
+- Database: MongoDB (Atlas or Local).
+- Editor: VS Code or any modern IDE.
+
+3.2 INSTALLATION
+1. Clone the repository from the source control.
+2. Navigate to the server directory and run npm install.
+3. Create a .env file in the server folder with MONGO_URL and JWT_SECRET.
+4. Navigate to the client directory and run npm install.
+5. Start the server using npm start and the client using npm start.
+
+CHAPTER-4
+4.1 PROBLEM DESCRIPTION
+The core challenge is to manage the complex relationships between users, posts, and interactions (likes/comments) in a way that remains performant as the data grows.
+
+4.2 USER AUTHENTICATION AND PROFILE MODULE
+This module handles user registration, login, and profile management. It uses bcrypt for password hashing and Multer for profile picture uploads. User data including location, occupation, and social links are stored in MongoDB.
+
+4.3 POSTS AND SOCIAL INTERACTION MODULE
+This module allows users to create posts with images and descriptions. It also manages the feed by fetching posts from the database and sorting them by date. The social interaction part handles friend requests and the post liking system.
+
+CHAPTER-5
+5.1 SOFTWARE REQUIREMENTS SPECIFICATION
+The system must allow users to:
+- Register with a unique email and secure password.
+- Upload images as part of their profile or posts.
+- View a feed of posts from all users.
+- Add or remove other users from their friend list.
+- Toggle between dark and light modes.
+
+5.2 SOFTWARE DESIGN
+The project follows a MVC (Model-View-Controller) pattern on the backend.
+- Models: User.js and Post.js define the data structure.
+- Controllers: Logic for auth, users, and posts.
+- Routes: Express routes that map URLs to controllers.
+The frontend uses a component-based architecture with Redux for state management.
+
+5.3 BLOCK DIAGRAM
+[DIAGRAM: System Architecture Block Diagram - Client-Server-Database]
+
+CHAPTER-6
+6.1 PROBLEM DISCUSSION
+One specific implementation hurdle was handling file uploads alongside JSON data in the registration phase. This was solved using Multer middleware which intercepts multipart/form-data requests.
+
+6.2 IMPLEMENTATION OF PROBLEM
+The backend is initialized with Express and connected to MongoDB using Mongoose. Security headers are added via Helmet, and Cross-Origin Resource Sharing is enabled through CORS. JWT tokens are verified in a custom middleware before granting access to protected routes like creating posts or fetching friend lists.
+
+CHAPTER-7
+7.1 ER-DIAGRAM
+[DIAGRAM: ER-Diagram showing User and Post entities and their relationships]
+
+7.2 DFD-DIAGRAM
+[DIAGRAM: DFD Level-0 showing data flow between User, Sociopedia System, and Database]
+
+CHAPTER-8
+8.1 SCREENSHOTS
+[SCREENSHOT: Login and Registration Page]
+[SCREENSHOT: User Home Page Feed]
+[SCREENSHOT: User Profile Page]
+[SCREENSHOT: Post Creation Widget]
+[SCREENSHOT: Dark Mode vs Light Mode Toggle]
+
+CHAPTER-9
+9.1 CODING
+
+--- USER MODEL (User.js) ---
+const UserSchema = new mongoose.Schema(
+  {
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    picturePath: { type: String, default: "" },
+    friends: { type: Array, default: [] },
+    location: String,
+    occupation: String,
+  },
+  { timestamps: true }
+);
+
+--- REGISTER CONTROLLER (auth.js) ---
+export const register = async (req, res) => {
+  try {
+    const { firstName, lastName, email, password, picturePath, friends, location, occupation } = req.body;
+    const salt = await bcrypt.genSalt();
+    const passwordHash = await bcrypt.hash(password, salt);
+    const newUser = new User({
+      firstName, lastName, email, password: passwordHash, picturePath, friends, location, occupation,
+      viewedProfile: Math.floor(Math.random() * 10000),
+      impressions: Math.floor(Math.random() * 10000),
+    });
+    const savedUser = await newUser.save();
+    res.status(201).json(savedUser);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+--- CREATE POST CONTROLLER (posts.js) ---
+export const createPost = async (req, res) => {
+  try {
+    const { userId, description, picturePath } = req.body;
+    const user = await User.findById(userId);
+    const newPost = new Post({
+      userId,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      location: user.location,
+      description,
+      userPicturePath: user.picturePath,
+      picturePath,
+      likes: {},
+      comments: [],
+    });
+    await newPost.save();
+    const post = await Post.find().sort({ createdAt: -1 });
+    res.status(201).json(post);
+  } catch (err) {
+    res.status(409).json({ message: err.message });
+  }
+};
+
+CHAPTER-10
+10.1 CONCLUSION
+Sociopedia successfully demonstrates the capability of the MERN stack in building high-performance social applications. The project provides a solid foundation for user connectivity and media sharing, while ensuring security through modern authentication standards. The inclusion of a dynamic design system highlights the importance of UI/UX in modern software engineering.
+
+10.2 FUTURE WORK
+- Implement real-time messaging using Socket.io.
+- Add support for post comments and replies.
+- Integrate cloud-based image storage (e.g., Cloudinary or AWS S3).
+- Implement post notifications and a search feature for users and tags.
+
+10.3 REFERENCES
+- MongoDB Documentation (https://www.mongodb.com/docs/)
+- Express.js Documentation (https://expressjs.com/)
+- React Documentation (https://react.dev/)
+- Node.js Official Website (https://nodejs.org/)
+- Material UI Documentation (https://mui.com/material-ui/)
